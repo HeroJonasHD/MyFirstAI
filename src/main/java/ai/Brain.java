@@ -4,10 +4,7 @@ import ai.neuron.Connection;
 import ai.neuron.Neuron;
 import ai.neuron.Signal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.util.*;
 
 public class Brain {
 
@@ -168,7 +165,8 @@ public class Brain {
         signals.addLast(signal);
     }
 
-    private void startBrain() {
+    public void startBrain() {
+        if(isRunning) return;
         Neuron[] startNeurons = new Neuron[inputNeurons.size()];
         for (int i = 0; i < inputNeurons.size(); i++) {
             startNeurons[i] = inputNeurons.get(i);
@@ -205,6 +203,10 @@ public class Brain {
                     signal.depth()+1,
                     connection.processValue(signal.value())));
         });
+    }
+
+    public Collection<Signal> getSignals() {
+        return signals;
     }
 
     public String nameCall() {
