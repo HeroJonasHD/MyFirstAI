@@ -2,13 +2,18 @@ package ai.neuron;
 
 import ai.Brain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.UUID;
 
 public class Neuron {
 
     private final Brain brain;
     public final boolean isStatic;
+
+    private final ArrayList<Connection> connections = new ArrayList<>();
+    private final ArrayList<Connection> reverseConnection = new ArrayList<>();
 
     public final UUID uuid;
 
@@ -22,6 +27,38 @@ public class Neuron {
         this.isStatic = isStatic;
         this.defaultValue = defaultValue;
         valueStorage = defaultValue.clone();
+    }
+
+    public void addConnection(Neuron b, UUID uuid, Connection.Processors... processors) {
+        addConnection(new Connection(this,b,uuid,brain, processors));
+    }
+
+    public void removeAllConnections() {
+        try {
+            connections.forEach(Neuron::removeConnection);
+            reverseConnection.forEach(Neuron::removeConnection);
+        } catch (Exception e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
+        }
+    }
+
+    public Collection<Connection> getConnections() {
+        return connections;
+    }
+
+    public static void addConnection(Connection connection) {
+        connection.getNeuronA().connections.add(connection);
+        connection.getNeuronB().reverseConnection.add(connection);
+    }
+
+    public static void removeConnection(Connection connection) {
+        try {
+            connection.getNeuronB().reverseConnection.remove(connection);
+            connection.getNeuronA().connections.remove(connection);
+        } catch (Exception e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
+        }
+
     }
 
     @Override

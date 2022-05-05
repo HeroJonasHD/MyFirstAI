@@ -12,8 +12,6 @@ public class Brain {
     private final int version;
     private final UUID uuid;
     private final HashMap<UUID, Neuron> neurons = new HashMap<>();
-    private final HashMap<Neuron, ArrayList<Connection>> connections = new HashMap<>();
-    private final HashMap<Neuron, ArrayList<Connection>> reverseConnections = new HashMap<>();
     private final ArrayList<Neuron> inputNeurons = new ArrayList<>();
     private final ArrayList<Neuron> outputNeurons = new ArrayList<>();
 
@@ -39,14 +37,6 @@ public class Brain {
             parent.inputNeurons.forEach(neuron -> inputNeurons.add(neurons.get(neuron.uuid)));
             parent.outputNeurons.forEach(neuron -> outputNeurons.add(neurons.get(neuron.uuid)));
 
-
-            parent.connections.forEach((neuron, connections1) -> {
-                Neuron neuronA = neurons.get(neuron.uuid);
-                connections1.forEach(connection -> {
-                    Neuron neuronB = neurons.get(connection.getNeuronB().uuid);
-                    addConnection(new Connection(neuronA,neuronB,connection.getUuid(),this, connection.getProcessorTypes()));
-                });
-            });
 
         }
         for (int i = 0; i < mutateFactor; i++) {
@@ -108,13 +98,10 @@ public class Brain {
     }
 
     private Connection addConnection(Connection connection) {
-        System.out.println("add Connection: " + connection);
-        if(!connections.containsKey(connection.getNeuronA())) connections.put(connection.getNeuronA(), new ArrayList<>());
-        connections.get(connection.getNeuronA()).add(connection);
-        if(!reverseConnections.containsKey(connection.getNeuronB())) reverseConnections.put(connection.getNeuronB(), new ArrayList<>());
-        reverseConnections.get(connection.getNeuronB()).add(connection);
+        Neuron.addConnection(connection);
         return connection;
     }
+
 
     private Neuron addNeuron(boolean isStatic) {
         return addNeuron(UUID.randomUUID(), isStatic);
@@ -128,34 +115,15 @@ public class Brain {
 
     private boolean removeNeuron(Neuron neuron) {
         if(neuron.isStatic) return false;
-        removeAllConnections(neuron);
+        neuron.removeAllConnections();
 
         neurons.remove(neuron.uuid);
         return true;
     }
 
-    private void removeAllConnections(Neuron neuron) {
-        if(reverseConnections.containsKey(neuron)) {
-            if(connections.get(neuron) != null)
-            for (Connection connection : reverseConnections.get(neuron)) {
-                removeConnection(connection);
-            }
-            reverseConnections.remove(neuron);
-        }
-        if(connections.containsKey(neuron)) {
-            if(connections.get(neuron) != null)
-            for (Connection connection : connections.get(neuron)) {
-                removeConnection(connection);
-            }
-            connections.remove(neuron);
-        }
-
-
-    }
 
     private void removeConnection(Connection connection) {
-        connections.getOrDefault(connection.getNeuronA(), new ArrayList<>()).remove(connection);
-        reverseConnections.getOrDefault(connection.getNeuronB(), new ArrayList<>()).remove(connection);
+        Neuron.removeConnection(connection);
         signals.forEach(signal -> {if(signal.connection() == connection) signals.remove(signal);});
     }
 
@@ -175,7 +143,7 @@ public class Brain {
         System.out.println("Processed Successfully: " + process(startNeurons));
     }
 
-    public boolean end;
+    public boolean end = false;
 
     private boolean isRunning = false;
 
@@ -183,26 +151,31 @@ public class Brain {
         if(isRunning) return false;
         isRunning = true;
         for (Neuron startNeuron : startNeurons) {
-            for (Connection connection : connections.getOrDefault(startNeuron, new ArrayList<>())) {
+            for (Connection connection : startNeuron.getConnections()) {
                 addSignalTask(new Signal(connection, 0, startNeuron.valueStorage));
             }
         }
 
         while(signals.size() > 0 && !end) {
-            processSignal(signals.getFirst());
+            System.out.println(processSignal(signals.getFirst()));
+            signals.removeFirst();
         }
         isRunning = false;
         return true;
     }
 
-    private void processSignal(Signal signal) {
+    private String processSignal(Signal signal) {
         Neuron neuron = signal.connection().getNeuronB();
-        connections.get(neuron).forEach(connection -> {
-            if(connection.isProcessable(signal))
-            addSignalTask(new Signal(connection,
-                    signal.depth()+1,
-                    connection.processValue(signal.value())));
+        neuron.getConnections().forEach(connection -> {
+            if(signal.connection().isProcessable(signal))
+                signals.addLast(
+                        new Signal(
+                                connection,
+                                signal.depth()+1,
+                                signal.connection().processValue(signal.value())));
         });
+
+        return signal.toString();
     }
 
     public Collection<Signal> getSignals() {
@@ -218,12 +191,10 @@ public class Brain {
         return "Brain{" +
                 "name='" + name + '\'' +
                 ", version=" + version +
-                //", uuid=" + uuid +
-                //", neurons=" + neurons +
-                ", connections=" + connections +
-                ", reverseConnections=" + reverseConnections +
-                //", inputNeurons=" + inputNeurons +
-                //", outputNeurons=" + outputNeurons +
+                ", uuid=" + uuid +
+                ", neurons=" + neurons +
+                ", inputNeurons=" + inputNeurons +
+                ", outputNeurons=" + outputNeurons +
                 ", signals=" + signals +
                 ", end=" + end +
                 ", isRunning=" + isRunning +

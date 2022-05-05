@@ -55,7 +55,7 @@ public class Connection {
     }
 
     public boolean isProcessable(Signal signal) {
-        return signal.depth() >= 30;
+        return signal.depth() <= 30;
     }
 
     public byte[] processValue(byte[] value) {
