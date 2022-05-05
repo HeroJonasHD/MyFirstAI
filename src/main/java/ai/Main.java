@@ -34,7 +34,10 @@ public class Main {
                         threads.add(thread);
                         thread.start();
                     }
-                    case MUTATE -> father[0].mutate();
+                    case MUTATE -> {
+                        for (int i = 0; i < 100 ; i++)
+                            father[0].mutate();
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("use: \"" + Commands.HELP.toString().toLowerCase(Locale.ROOT) + "\" - " + Commands.HELP.info);

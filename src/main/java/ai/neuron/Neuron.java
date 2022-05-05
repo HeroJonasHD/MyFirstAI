@@ -2,10 +2,7 @@ package ai.neuron;
 
 import ai.Brain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
+import java.util.*;
 
 public class Neuron {
 
@@ -70,5 +67,13 @@ public class Neuron {
                 ", defaultValue=" + Arrays.toString(defaultValue) +
                 ", valueStorage=" + Arrays.toString(valueStorage) +
                 '}';
+    }
+
+    public void removeRandomConnection() {
+        if(connections.size()>0) {
+            Connection connection = connections.get((int) (Math.random() * connections.size()));
+            Neuron.removeConnection(connection);
+        }
+        return;
     }
 }

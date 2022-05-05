@@ -57,7 +57,8 @@ public class Brain {
 
     public enum Mutation {
 
-        CONNECTOR,
+        CONNECTOR_ADD,
+        CONNECTOR_REMOVE,
         NEURON_ADD,
         NEURON_REMOVE;
 
@@ -72,8 +73,8 @@ public class Brain {
 
     private void mutate(Mutation mutation_type) {
         switch (mutation_type) {
-            case CONNECTOR -> addRandomConnection();
-
+            case CONNECTOR_ADD -> addRandomConnection();
+            case CONNECTOR_REMOVE -> getRandomNeuron().removeRandomConnection();
             case NEURON_ADD -> addNeuron(false);
             case NEURON_REMOVE -> removeNeuron(getRandomNeuron());
         }
