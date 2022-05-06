@@ -1,12 +1,9 @@
 package ai.neuron;
 
-import ai.Brain;
-
 import java.util.*;
 
 public class Neuron {
 
-    private final Brain brain;
     public final boolean isStatic;
 
     private final ArrayList<Connection> connections = new ArrayList<>();
@@ -16,18 +13,17 @@ public class Neuron {
 
     public final byte[] defaultValue;
 
-    public byte[] valueStorage;
+    public transient byte[] valueStorage;
 
-    public Neuron(Brain brain, UUID uuid, boolean isStatic, byte[] defaultValue) {
+    public Neuron(UUID uuid, boolean isStatic, byte[] defaultValue) {
         this.uuid = uuid;
-        this.brain = brain;
         this.isStatic = isStatic;
         this.defaultValue = defaultValue;
         valueStorage = defaultValue.clone();
     }
 
     public void addConnection(Neuron b, UUID uuid, Connection.Processors... processors) {
-        addConnection(new Connection(this,b,uuid,brain, processors));
+        addConnection(new Connection(this,b,uuid, processors));
     }
 
     public void removeAllConnections() {
@@ -52,11 +48,10 @@ public class Neuron {
     @Override
     public String toString() {
         return "Neuron{" +
-                //"brain=" + brain.nameCall() +
                 ", isStatic=" + isStatic +
                 ", uuid=" + uuid +
                 ", defaultValue=" + Arrays.toString(defaultValue) +
-                ", valueStorage=" + Arrays.toString(valueStorage) +
+                ", connections= " + connections +
                 '}';
     }
 
@@ -67,4 +62,5 @@ public class Neuron {
         }
         return;
     }
+
 }

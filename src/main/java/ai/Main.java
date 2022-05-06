@@ -1,5 +1,7 @@
 package ai;
 
+
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -16,7 +18,7 @@ public class Main {
         threads.forEach(Thread::start);
         //father.addRandomConnection();
         //final Brain[] child = new Brain[1];
-        //new Thread(() -> child[0] = new Brain(false, 0, father[0], "Deine Mum")).start();
+
         Scanner scanner = new Scanner(System.in);
         boolean next = true;
         while(next) {
@@ -39,6 +41,7 @@ public class Main {
                             father[0].mutate();
                     }
                     case COMPLEXITY -> System.out.println(father[0].getComplexity());
+                    case JSON -> System.out.println();
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("use: \"" + Commands.HELP.toString().toLowerCase(Locale.ROOT) + "\" - " + Commands.HELP.info);
@@ -49,7 +52,7 @@ public class Main {
 
         threads.forEach(Thread::stop);
 
-        System.out.println(father[0]+ "\n\n\n\n\n\n" /*+ child[0]*/);
+        System.out.println(father[0] /*+ "\n\n\n\n\n\n" + child[0]*/);
 
     }
 
@@ -60,6 +63,7 @@ public class Main {
         HELP("returns all help informations"),
         STARTBRAIN("do Start Brain"),
         COMPLEXITY("get ComplexityInfo"),
+        JSON("reurns Json"),
         MUTATE("mutates our CurrentBrain");
 
         public final String info;

@@ -13,8 +13,8 @@ public class Brain {
     private final int version;
     private final UUID uuid;
     private final HashMap<UUID, Neuron> neurons = new HashMap<>();
-    private final ArrayList<Neuron> inputNeurons = new ArrayList<>();
-    private final ArrayList<Neuron> outputNeurons = new ArrayList<>();
+    private final ArrayList<UUID> inputNeurons = new ArrayList<>();
+    private final ArrayList<UUID> outputNeurons = new ArrayList<>();
 
 
     public Brain(boolean autostart, int mutateFactor, Brain parent, String name) {
@@ -23,8 +23,8 @@ public class Brain {
         if (parent == null) {
             version = 0;
             for (int i = 0; i < 11; i++) {
-                inputNeurons.add(addNeuron(true));
-                outputNeurons.add(addNeuron(true));
+                inputNeurons.add(addNeuron(true).uuid);
+                outputNeurons.add(addNeuron(true).uuid);
             }
         } else {
             version = parent.version+1;
@@ -32,11 +32,10 @@ public class Brain {
             //System.out.println("Counted Neurons: " + parent.neurons.size());
             parent.neurons.forEach((uuid, neuron) -> {
                 //System.out.println("add Neuron: " + uuid);
-                neurons.put(uuid,new Neuron(this,uuid,neuron.isStatic,neuron.defaultValue));
+                neurons.put(uuid,new Neuron(uuid,neuron.isStatic,neuron.defaultValue));
             });
             //System.out.println("added " + neurons.size());
-            parent.inputNeurons.forEach(neuron -> inputNeurons.add(neurons.get(neuron.uuid)));
-            parent.outputNeurons.forEach(neuron -> outputNeurons.add(neurons.get(neuron.uuid)));
+            inputNeurons.addAll(parent.inputNeurons);
 
 
         }
@@ -95,7 +94,7 @@ public class Brain {
     }
 
     private Connection addConnection(Neuron a, Neuron b) {
-        Connection connection = new Connection(a,b,UUID.randomUUID(),this);
+        Connection connection = new Connection(a,b,UUID.randomUUID());
         return addConnection(connection);
     }
 
@@ -110,7 +109,7 @@ public class Brain {
     }
 
     private Neuron addNeuron(UUID uuid, boolean isStatic, byte... defaultValue) {
-        Neuron neuron = new Neuron(this,uuid, isStatic, defaultValue);
+        Neuron neuron = new Neuron(uuid, isStatic, defaultValue);
         neurons.put(uuid, neuron);
         return neuron;
     }
@@ -135,17 +134,17 @@ public class Brain {
         signals.addLast(signal);
     }
 
-    public boolean end = false;
+    public transient boolean end = false;
 
-    private boolean isRunning = false;
+    private transient boolean isRunning = false;
 
-    private int startCount = 0;
+    private transient int startCount = 0;
 
     public void startBrain() {
         if(isRunning) return;
         Neuron[] startNeurons = new Neuron[inputNeurons.size()];
         for (int i = 0; i < inputNeurons.size(); i++) {
-            startNeurons[i] = inputNeurons.get(i);
+            startNeurons[i] = neurons.get(inputNeurons.get(i));
         }
         System.out.println("Start Brain: " + nameCall());
         System.out.println("Processed Successfully: " + process(startNeurons));
@@ -169,7 +168,7 @@ public class Brain {
         return true;
     }
 
-    private int processedSignals = 0;
+    private transient int processedSignals = 0;
 
     private String processSignal(Signal signal) {
         Neuron neuron = signal.connection().getNeuronB();
@@ -203,7 +202,7 @@ public class Brain {
                 ", neurons=" + neurons +
                 ", inputNeurons=" + inputNeurons +
                 ", outputNeurons=" + outputNeurons +
-                ", signals=" + signals +
+                //", signals=" + signals +
                 ", end=" + end +
                 ", isRunning=" + isRunning +
                 '}';

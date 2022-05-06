@@ -1,6 +1,4 @@
-package ai.neuron;
-
-import ai.Brain;
+package ai.neuron;;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -10,13 +8,12 @@ public class Connection {
     public static double totalProcessingCount;
 
     private final Processors[] processorTypes;
-    private final Brain brain;
     private final Neuron neuronA;
     private final Neuron neuronB;
     private final UUID uuid;
-    private double useCount = 0;
+    private transient double useCount = 0;
 
-    public Connection(Neuron neuronA, Neuron neuronB, UUID uuid, Brain brain, Processors... processorType) {
+    public Connection(Neuron neuronA, Neuron neuronB, UUID uuid, Processors... processorType) {
         if(processorType != null)
             this.processorTypes = processorType;
         else {
@@ -25,7 +22,6 @@ public class Connection {
                 this.processorTypes[i] = Processors.randomProcessor();
             }
         }
-        this.brain = brain;
         this.neuronA = neuronA;
         this.neuronB = neuronB;
         this.uuid = uuid;
@@ -68,6 +64,7 @@ public class Connection {
     public Processors[] getProcessorTypes() {
         return processorTypes;
     }
+
 
     public enum Processors {
         ADD((connection, bytes) -> {
@@ -155,11 +152,11 @@ public class Connection {
     public String toString() {
         return "Connection{" +
                 "processorType=" + Arrays.toString(processorTypes) +
-                //", brain=" + brain.nameCall() +
-                ", neuronA=" + neuronA +
-                ", neuronB=" + neuronB +
+                ", neuronA=" + neuronA.uuid +
+                ", neuronB=" + neuronB.uuid +
                 ", uuid=" + uuid +
-                ", useCount=" + useCount +
                 '}';
     }
+
+
 }
