@@ -31,12 +31,8 @@ public class Neuron {
     }
 
     public void removeAllConnections() {
-        try {
-            connections.forEach(Neuron::removeConnection);
-            reverseConnection.forEach(Neuron::removeConnection);
-        } catch (Exception e) {
-            System.out.println(Arrays.toString(e.getStackTrace()));
-        }
+        connections.forEach(connection -> connection.getNeuronB().reverseConnection.remove(connection));
+        connections.removeIf(connection -> true);
     }
 
     public Collection<Connection> getConnections() {
@@ -49,13 +45,8 @@ public class Neuron {
     }
 
     public static void removeConnection(Connection connection) {
-        try {
-            connection.getNeuronB().reverseConnection.remove(connection);
-            connection.getNeuronA().connections.remove(connection);
-        } catch (Exception e) {
-            System.out.println(Arrays.toString(e.getStackTrace()));
-        }
-
+        connection.getNeuronB().reverseConnection.remove(connection);
+        connection.getNeuronA().connections.remove(connection);
     }
 
     @Override

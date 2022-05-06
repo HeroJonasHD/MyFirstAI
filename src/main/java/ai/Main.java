@@ -38,6 +38,7 @@ public class Main {
                         for (int i = 0; i < 100 ; i++)
                             father[0].mutate();
                     }
+                    case COMPLEXITY -> System.out.println(father[0].getComplexity());
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("use: \"" + Commands.HELP.toString().toLowerCase(Locale.ROOT) + "\" - " + Commands.HELP.info);
@@ -58,6 +59,7 @@ public class Main {
         SIGNALS("returns all Current Signals"),
         HELP("returns all help informations"),
         STARTBRAIN("do Start Brain"),
+        COMPLEXITY("get ComplexityInfo"),
         MUTATE("mutates our CurrentBrain");
 
         public final String info;

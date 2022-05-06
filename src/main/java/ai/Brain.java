@@ -3,6 +3,7 @@ package ai;
 import ai.neuron.Connection;
 import ai.neuron.Neuron;
 import ai.neuron.Signal;
+import ai.selection.Complexity;
 
 import java.util.*;
 
@@ -134,6 +135,12 @@ public class Brain {
         signals.addLast(signal);
     }
 
+    public boolean end = false;
+
+    private boolean isRunning = false;
+
+    private int startCount = 0;
+
     public void startBrain() {
         if(isRunning) return;
         Neuron[] startNeurons = new Neuron[inputNeurons.size()];
@@ -144,13 +151,10 @@ public class Brain {
         System.out.println("Processed Successfully: " + process(startNeurons));
     }
 
-    public boolean end = false;
-
-    private boolean isRunning = false;
-
     private boolean process(Neuron... startNeurons) {
         if(isRunning) return false;
         isRunning = true;
+        startCount++;
         for (Neuron startNeuron : startNeurons) {
             for (Connection connection : startNeuron.getConnections()) {
                 addSignalTask(new Signal(connection, 0, startNeuron.valueStorage));
@@ -165,8 +169,11 @@ public class Brain {
         return true;
     }
 
+    private int processedSignals = 0;
+
     private String processSignal(Signal signal) {
         Neuron neuron = signal.connection().getNeuronB();
+        processedSignals++;
         neuron.getConnections().forEach(connection -> {
             if(signal.connection().isProcessable(signal))
                 signals.addLast(
@@ -200,5 +207,13 @@ public class Brain {
                 ", end=" + end +
                 ", isRunning=" + isRunning +
                 '}';
+    }
+
+    public Complexity getComplexity() {
+        final int[] connectionCount = {0};
+        neurons.forEach((uuid,neuron) -> {
+                connectionCount[0]+=neuron.getConnections().size();
+        });
+        return new Complexity(neurons.size(), connectionCount[0], processedSignals, startCount);
     }
 }
